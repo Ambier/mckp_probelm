@@ -156,17 +156,90 @@ TEST(mckp_helper_test, check_dominating_elements_test)
     }
 }
 
+TEST(mckp_helper_tests, quickselect_test)
+{
+    int arr[][SACK_ITEM_LIMIT] = {
+        {4, 5, 2, 6, 3, 1},
+        {1, 2, 3, 4, 5, 6, 7},
+        {9, 10, 4, 1, 5, 6, 8, 7, 3, 2}
+    };
+
+    int arr_size[] = {
+        6,
+        7,
+        10
+    };
+
+    int results[] = {
+        3,
+        4,
+        5   
+    };
+
+    /// NOTE: Don't edit below
+
+    size_t n = sizeof(arr) / sizeof(arr[0]);
+
+    for (size_t i = 0; i < n; i++)
+    {
+        int val = quickSelect<int>(arr[i], 0, arr_size[i]-1, (arr_size[i]-1) / 2);
+        EXPECT_EQ(val, results[i]);
+    }
+
+}
+
 TEST(mckp_helper_tests, derive_slope_test)
 {
     pair<int,int> input_pairs_w[][SACK_ITEM_LIMIT/2] = {
-        {make_pair(1,2), make_pair(3,4), make_pair(5,6)},
-        {make_pair(1,2), make_pair(3,4), make_pair(5,6), make_pair(7,8)}
+        {make_pair(1,3), make_pair(1,3), make_pair(1,3)},
+        {make_pair(1,3), make_pair(1,3), make_pair(1,3), make_pair(1,3)}
     };
 
     pair<int,int> input_pairs_p[][SACK_ITEM_LIMIT/2] = {
-        {make_pair(1,2), make_pair(3,4), make_pair(5,6)},
-        {make_pair(1,2), make_pair(3,4), make_pair(5,6), make_pair(7,8)}
+        {make_pair(1,3), make_pair(1,2), make_pair(1,10)},
+        {make_pair(1,3), make_pair(1,4), make_pair(1,10), make_pair(1,5)}
     };
+
+    size_t num_pairs[] = {
+        3,
+        4
+    };
+
+    double results[] = {
+        1,
+        1.5
+    };
+
+    /// NOTE: Don't edit below
+
+    size_t num_sacks = sizeof(input_pairs_w) / sizeof(input_pairs_w[0]);
+
+    N_item_pairs_map map;
+
+    vector<N> sacks;
+    for (size_t i = 0; i < num_sacks; i++)
+    {
+        sacks.push_back(N(i));
+        map[sacks[i]] = vector<item_pair>();
+        for (size_t j = 0; j < num_pairs[i]; j++)
+        {
+            map[sacks[i]].push_back(
+                make_pair(
+                    new Item(2*j, input_pairs_w[i][j].first, input_pairs_p[i][j].first), 
+                    new Item(2*j+1, input_pairs_w[i][j].second, input_pairs_p[i][j].second)
+                )
+            );
+        }
+    }
+
+    N_slope_map y;
+    derive_slope(sacks, map, y);
+
+    for (size_t i = 0; i < num_sacks; i++)
+    {
+        EXPECT_EQ(y[i], results[i]);
+    }
+    
 }
 
 int main(int argc, char** argv) {

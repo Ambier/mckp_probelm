@@ -11,6 +11,48 @@ void check_dominating_elements(N& sack, bool sort_sack=false);
 void make_item_pairs(vector<N>& sacks, N_item_pairs_map& map, bool sort_sacks=true);
 void derive_slope(vector<N>& sacks, N_item_pairs_map& map, N_slope_map& y);
 
+template <typename T>
+int partition(T arr[], int low, int high) 
+{ 
+    T pivot = arr[high]; 
+    int i = (low - 1); 
+    for (int j = low; j < high; j++) 
+    { 
+        if (arr[j] <= pivot) 
+        { 
+            i++; 
+            swap(arr[i], arr[j]); 
+        } 
+    } 
+    swap(arr[i + 1], arr[high]); 
+    return (i + 1);
+}
+
+template <typename T>
+T quickSelect(T a[], int left, int right, int k) 
+{
+    while (left <= right) 
+    {
+        // Partition around a pivot and then check its position
+        // and find the position of the pivot 
+        int pivotIndex = partition(a, left, right); 
+  
+        if (pivotIndex == k)
+        {
+            return a[pivotIndex];
+        }
+        else if (pivotIndex > k)
+        {
+            right = pivotIndex - 1; 
+        }  
+        else
+        {
+            left = pivotIndex + 1; 
+        }
+    } 
+    return -1; 
+} 
+
 void check_dominating_elements(N& sack, bool sort_sack)
 {
     if (sort_sack)
@@ -92,25 +134,18 @@ void derive_slope(vector<N>& sacks, N_item_pairs_map& map, N_slope_map& y)
             continue;
         }
         
-        vector<double> slopes;
+        double slopes[item_pairs.size()];
         for (size_t i = 0; i < item_pairs.size(); i++)
         {
-            slopes.push_back(
-                (item_pairs[i].second->p - item_pairs[i].first->p) /
-                (item_pairs[i].second->w - item_pairs[i].first->w)
+            slopes[i] = (
+                (double) (item_pairs[i].second->p - item_pairs[i].first->p) /
+                (double) (item_pairs[i].second->w - item_pairs[i].first->w)
             );
         }
-        sort(slopes.begin(), slopes.end());
 
-        size_t mid = slopes.size() / 2;
-        if (slopes.size() % 2)
-        {
-            y[*sack] = (slopes[mid-1] + slopes[mid]) / 2;
-        }
-        else
-        {
-            y[*sack] = slopes[mid];
-        }
+        // Set the median slope for the respective sack
+        y[*sack] = quickSelect<double>(slopes, 0, item_pairs.size()-1, 
+            (item_pairs.size()-1) / 2);
     }
 }
 
